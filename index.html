@@ -2,14 +2,20 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+    <div class="quick col-2 themeQuickControls iconBar">
+      <i class="icon" id="brush-size" title="Brush size">Brush Size</i>
+      <i class="icon" id="colorPicker" title="Change color"></i>
+    </div>
+    <div class="canvs">
+      <div id="layers">
+        <canvas class="canv" id="base"></canvas>
+        <!--More layers go here-->
+      </div>
+      <canvas class="canv" id="top-canv"></canvas>
+    </div>
 
     <script>
       // You can also require other files to run in this process

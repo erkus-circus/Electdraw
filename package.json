@@ -1,0 +1,21 @@
+{
+  "name": "electdraw",
+  "version": "1.1.0",
+  "description": "a drawing app",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erkus-circus/Electdraw.git"
+  },
+  "author": "eric diskin",
+  "bugs": {
+    "url": "https://github.com/erkus-circus/Electdraw/issues"
+  },
+  "devDependencies": {
+    "electron": "^3.0.7"
+  },
+  "homepage": "https://github.com/erkus-circus/Electdraw#readme"
+}
