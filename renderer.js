@@ -2,7 +2,7 @@ const electron = require('electron')
 const remote = require('electron').remote
 const ipc = electron.ipcRenderer
 const fs = require('fs')
-
+const $ = require('./erklib.js')
 
 /**
  * Eric Diskin
@@ -11,8 +11,14 @@ const fs = require('fs')
 
 
 var glob = {
-    showMouse: false
-}, canvs = [], ctxs = [], top
+    showMouse: false,
+    mouseDown: false,
+    size: 16,
+    mode: 'marker',
+    px:0,
+    py:0
+},
+canvs = [], ctxs = [], top
 
 function saveAssets(assetStack,name) {
     fs.writeFile(name + '.stack-img-file',JSON.stringify({stack:assetStack,glob:glob}),()=>{})
@@ -59,7 +65,6 @@ function draw(asset) {
         case 'cl':
             glob.layer = ctxs[parseInt(words[1])]
             break;
-        
             
         case 'nl':
             AddLayer()
@@ -100,22 +105,21 @@ function draw(asset) {
         default:
             break;
     }
-
 }
 
 function updateCanvs() {
     canvs = document.getElementsByClassName('canv')
     for (let i = 0; i < canvs.length; i++) {
-        canvs[i].style.zIndex = i;
-        const c = canvs[i].getContext('2d');
+        canvs[i].style.zIndex = i; // apply layer
+        const c = canvs[i].getContext('2d'); // get contexts
         ctxs.push(c)
     }
-    top = ctxs.pop()
-    glob.layer = ctxs[0]
+    top = ctxs.pop() // top canvas
+    glob.layer = ctxs[0] // layer currently editing
 }
 
 function mPos(e) { // find mouse position on "canvas"
-    var rt = canv2.getBoundingClientRect();
+    var rt = $('#base')[0].getBoundingClientRect();
     return {
         x: e.clientX - rt.left,
         y: e.clientY - rt.top
@@ -147,20 +151,46 @@ function padZero(str, len=2) {
     return (zeros + str).slice(-len);
 }
 
-function drawMouse(params) {
-    
+
+function clear(ctx, canv=$('#base')) {
+    ctx.clearRect(0,0,canv.width(),canv.height())
 }
 
-top.onmousemove = (evt)=> {
-    var p = mPos(evt) // mouse position over canvases
-}
 
-updateCanvs()
-var a = [
-    `cvs ${window.innerWidth * .75} ${window.innerHeight * .50}` // size canvas accordingly to screen
-]
-for (let i = 0; i < a.length; i++) { // execute a
-    const p = a[i];
-    draw(p)
+
+onload = () => {
+    updateCanvs() // initalize canvases
+    var a = [
+        `cvs ${window.innerWidth * .75} ${window.innerHeight * .50}`, // size canvas accordingly to screen
+        ``
+    ]
+    for (let i = 0; i < a.length; i++) { // execute a
+        const p = a[i];
+        draw(p)
+    }
+    $(document).on('mousemove mousedown',(evt)=> {
+        if (evt.type == 'mousedown') {
+            glob.mouseDown = true;
+        }
+        var p = mPos(evt) // mouse position over canvases
+        if (!glob.showMouse && !glob.mouseDown) {
+            clear(top) // clear the top canvas
+            switch (glob.mode) {
+                case 'marker': // draw mouse pointer (circle) if mode is marker
+                    top.beginPath()
+                    top.arc(p.x,p.y,glob.size,0,2*Math.PI)
+                    top.stroke()
+                    top.closePath()
+                    break;
+                
+                default:
+                    break;
+            }
+        } else if (glob.mouseDown) {
+            draw(`move ${glob.px} ${glob.py}`)
+            draw(`line ${p.x} ${p.y}`)
+            draw('strk')
+        }
+    })
+    updateCanvs()
 }
-updateCanvs()
